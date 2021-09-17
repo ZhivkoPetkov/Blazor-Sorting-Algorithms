@@ -1,0 +1,146 @@
+﻿@page "/"
+@using ChartJs.Blazor.BarChart
+@using Blazored.Toast.Configuration
+@inject ISortingService SortingService
+@inject IToastService toastService
+
+<div class="chart">
+    <div>
+        <Chart Config="_config" @ref="_chart"></Chart>
+    </div>
+        <table class="table" style="border-style: hidden">
+            <tr>
+                <td>Algorithm:</td>
+                <td>Delay:</td>
+            </tr>
+            <tr>
+                <td>
+                    <RadzenSelectBar @bind-Value=@algorithm>
+                        <Items>
+                            @foreach (var method in (SortingMethod[])Enum
+                            .GetValues(typeof(SortingMethod)))
+                            {
+                                <RadzenSelectBarItem Text="@method.ToString()" Value="@method" />
+                            }
+                        </Items>
+                    </RadzenSelectBar>
+                </td>
+                <td> <RadzenSlider @bind-Value=@sortingVisualizationMs TValue="int" Min="10" Max="200" /></td>
+            </tr>
+        </table>
+    <div class="center">
+        @switch (status)
+        {
+            case SortingStatus.NewlyGenerated:
+                <RadzenButton style="margin: 0 1rem 1rem 0" Click=@Sort Text=@Constant.SortArrayButton ButtonStyle="ButtonStyle.Secondary" />
+                break;
+
+            case SortingStatus.Sorted:
+                <RadzenButton style="margin: 0 1rem 1rem 0" Click=@GenerateNewArray Text=@Constant.NewArrayButton ButtonStyle="ButtonStyle.Secondary" />
+                break;
+
+            default:
+                <RadzenButton style="margin: 0 1rem 1rem 0" Click=@GenerateNewArray Text=@Constant.SortingProcessButton Disabled ButtonStyle="ButtonStyle.Secondary" />
+                break;
+        }
+    </div>
+</div>
+
+<BlazoredToasts Position="ToastPosition.TopRight"
+                Timeout="3"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast-override"
+                SuccessIcon="fa fa-cogs"
+                ErrorIcon="fa fa-bug" />
+
+@code {
+    private Chart _chart;
+    private BarConfig _config;
+    private SortingStatus status;
+    private Random rand = new Random();
+    private int arraySize = 50;
+    private int sortingVisualizationMs = 95;
+    private int[] numbers;
+    private SortingMethod algorithm;
+
+    private async Task Sort()
+    {
+        status = SortingStatus.Sorting;
+        toastService.ShowInfo(Constant.SortingArrayMessage, $"{algorithm.ToString()}");
+
+        switch (algorithm)
+        {
+            case SortingMethod.QuickSort:
+                await this.SortingService.QuickSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs);
+                break;
+            case SortingMethod.BubleSort:
+                await this.SortingService.BubleSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs);
+                break;
+            case SortingMethod.MergeSort:
+                await this.SortingService.MergeSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs);
+                break;
+            default:
+                break;
+        }
+        status = SortingStatus.Sorted;
+        toastService.ShowSuccess(Constant.SortedArrayMessage, "Ready");
+    }
+
+    private void GetRandomValues()
+    {
+        var set = new HashSet<int>();
+        for (int i = 0; i < arraySize; i++)
+        {
+            set.Add(rand.Next(1, 120));
+        }
+        this.numbers = set.ToArray();
+    }
+
+    private void GenerateNewArray()
+    {
+        this.GetRandomValues();
+        this._config.Data.Labels.Clear();
+        foreach (var num in numbers)
+        {
+            _config.Data.Labels.Add(num.ToString());
+        }
+        var dataset = new BarDataset<int>(this.numbers);
+        _config.Data.Datasets.Clear();
+        _config.Data.Datasets.Add(dataset);
+        _chart.Update();
+        status = SortingStatus.NewlyGenerated;
+    }
+
+    protected override void OnInitialized()
+    {
+        GetRandomValues();
+        _config = new BarConfig
+            {
+                Options = new BarOptions
+                {
+                    Responsive = true,
+                    Title = new OptionsTitle
+                    {
+                        Display = false,
+                    },
+                    Animation = new Animation
+                    {
+                        Duration = 5
+                    },
+                    Legend = new Legend
+                    {
+                        Display = false
+                    }
+                }
+            };
+
+        foreach (var num in numbers)
+        {
+            _config.Data.Labels.Add(num.ToString());
+        }
+
+        BarDataset<int> dataset = new BarDataset<int>(numbers);
+
+        _config.Data.Datasets.Add(dataset);
+    }
+}
