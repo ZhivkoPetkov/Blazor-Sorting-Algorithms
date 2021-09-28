@@ -46,12 +46,10 @@
     </div>
 </div>
 
-<BlazoredToasts Position="ToastPosition.TopRight"
+<BlazoredToasts Position="ToastPosition.BottomRight"
                 Timeout="3"
                 IconType="IconType.FontAwesome"
-                SuccessClass="success-toast-override"
-                SuccessIcon="fa fa-cogs"
-                ErrorIcon="fa fa-bug" />
+                SuccessClass="success-toast-override" />
 
 @code {
     private Chart _chart;
@@ -62,6 +60,7 @@
     private int sortingVisualizationMs = 95;
     private int[] numbers;
     private SortingMethod algorithm;
+    private SortingContext sortingContext = new SortingContext();
 
     private async Task Sort()
     {
@@ -71,7 +70,8 @@
         switch (algorithm)
         {
             case SortingMethod.QuickSort:
-                await this.SortingService.QuickSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs);
+                this.sortingContext.SetStrategy(new QuickSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs));
+                await this.sortingContext.Sort();
                 break;
             case SortingMethod.BubleSort:
                 await this.SortingService.BubleSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs);
