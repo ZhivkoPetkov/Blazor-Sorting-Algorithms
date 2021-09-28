@@ -1,4 +1,3 @@
-using AlgoVisualization.Services;
 using Blazored.Toast;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +15,6 @@ namespace AlgoVisualization
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            builder.Services.AddSingleton<ISortingService, SortingService>();
             builder.Services.AddBlazoredToast();
 
             await builder.Build().RunAsync();

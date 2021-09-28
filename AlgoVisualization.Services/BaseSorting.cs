@@ -11,7 +11,7 @@ namespace AlgoVisualization.Services
     {
 
         protected int[] currentArray;
-        private int[] oldArray;
+        protected int[] oldArray;
         protected Chart chart;
         protected BarConfig config;
         protected int visualizationSpeed;

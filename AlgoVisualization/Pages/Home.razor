@@ -1,7 +1,6 @@
 ﻿@page "/"
 @using ChartJs.Blazor.BarChart
 @using Blazored.Toast.Configuration
-@inject ISortingService SortingService
 @inject IToastService toastService
 
 <div class="chart">
@@ -76,7 +75,7 @@
                 this.sortingContext.SetStrategy(new BubleSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs));
                 break;
             case SortingMethod.MergeSort:
-                await this.SortingService.MergeSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs);
+                this.sortingContext.SetStrategy(new MergeSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs));
                 break;
         }
         await this.sortingContext.Sort();
