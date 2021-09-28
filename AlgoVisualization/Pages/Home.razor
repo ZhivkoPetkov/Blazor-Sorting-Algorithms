@@ -71,17 +71,15 @@
         {
             case SortingMethod.QuickSort:
                 this.sortingContext.SetStrategy(new QuickSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs));
-                await this.sortingContext.Sort();
                 break;
             case SortingMethod.BubleSort:
-                await this.SortingService.BubleSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs);
+                this.sortingContext.SetStrategy(new BubleSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs));
                 break;
             case SortingMethod.MergeSort:
                 await this.SortingService.MergeSort(this.numbers, this._chart, this._config, this.sortingVisualizationMs);
                 break;
-            default:
-                break;
         }
+        await this.sortingContext.Sort();
         status = SortingStatus.Sorted;
         toastService.ShowSuccess(Constant.SortedArrayMessage, "Ready");
     }
